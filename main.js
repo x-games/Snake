@@ -11,14 +11,14 @@ $(document).ready(function(){
     function SnakeGame() {
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
-        this.w = this.canvas.offsetWidth;
-        this.h = this.canvas.offsetHeight;
+        this.w = this.canvas.width;
+        this.h = this.canvas.height;
 
         this.fieldWidth = 45;
         this.fieldHeight = 45;
 
-        this.cell_width = 10;
-        this.direction = 'right';
+        this.cell_size = 10;
+        this.direction = direction.RIGHT;
         this.game_loop = null;
         this.food = {};
         this.score = 0;
@@ -29,12 +29,11 @@ $(document).ready(function(){
 
     SnakeGame.prototype.init_game = function() {
         this.movingSpeed = 100;
-        this.direction = 'right';
+        this.direction = direction.RIGHT;
         this.create_snake();
         this.create_food();
         this.score = 0;
 
-        //if(typeof this.game_loop != 'undefined') {
         if(this.game_loop) {
             clearInterval(this.game_loop);
         }
@@ -56,8 +55,8 @@ $(document).ready(function(){
     SnakeGame.prototype.create_food = function() {
         this.food = {
             // todo use logical\graphical coord
-            x: Math.round(Math.random()*(this.w-this.cell_width)/this.cell_width),
-            y: Math.round(Math.random()*(this.w-this.cell_width)/this.cell_width)
+            x: Math.round(Math.random()*(this.w-this.cell_size)/this.cell_size),
+            y: Math.round(Math.random()*(this.h-this.cell_size)/this.cell_size)
         }
     };
 
@@ -72,41 +71,41 @@ $(document).ready(function(){
         var new_x = this.snake_array[this.snake_array.length-1].x;
         var new_y = this.snake_array[this.snake_array.length-1].y;
 
-        //var map = [
-        //    {
-        //        x : -1,
-        //        y : 0
-        //    },
-        //    {
-        //        x : 1,
-        //        y : 0
-        //    },
-        //    {
-        //        x : 0,
-        //        y : -1
-        //    },
-        //    {
-        //        x : 0,
-        //        y : 1
-        //    }
-        //
-        //];
-        //
-        //var currentMove = map[this.direction];
-        //new_x += currentMove.x;
-        //new_y += currentMove.y;
+        var map = [
+            {
+                x : 1,
+                y : 0
+            },
+            {
+                x : -1,
+                y : 0
+            },
+            {
+                x : 0,
+                y : -1
+            },
+            {
+                x : 0,
+                y : 1
+            }
 
-        // todo map this
-        if (this.direction == 'right') {new_x++}
-        else if (this.direction == 'left') {new_x--}
-        else if (this.direction == 'up') {new_y--}
-        else if (this.direction == 'down') {new_y++}
+        ];
+
+        var currentMove = map[this.direction];
+        new_x += currentMove.x;
+        new_y += currentMove.y;
+
+        // todo map this - done
+        //if (this.direction == 'right') {new_x++}
+        //else if (this.direction == 'left') {new_x--}
+        //else if (this.direction == 'up') {new_y--}
+        //else if (this.direction == 'down') {new_y++}
 
         var xOutOfFieldLeft = new_x < 0,
-            xOutOfFieldRight = new_x > this.w/this.cell_width - 1,
+            xOutOfFieldRight = new_x > this.w/this.cell_size - 1,
             yOutOfFieldTop = new_y < 0,
-            yOutOfFieldBottom = new_y > this.h/this.cell_width - 1,
-            selfTailTouched = this.body_collision(new_x,new_y,this.snake_array);
+            yOutOfFieldBottom = new_y > this.h/this.cell_size - 1,
+            selfTailTouched = this.body_collision();
 
         if ( xOutOfFieldLeft || xOutOfFieldRight || yOutOfFieldTop || yOutOfFieldBottom || selfTailTouched ) {
             this.init_game();
@@ -145,23 +144,37 @@ $(document).ready(function(){
 
         this.paint_cell(this.food.x, this.food.y);
 
+        this.drawScore();
+    };
+
+    SnakeGame.prototype.drawScore = function() {
         var score_text = 'Score: ' + this.score;
         this.ctx.fillText(score_text, 5, this.h-10);
     };
 
     SnakeGame.prototype.paint_cell = function(x, y) {
         this.ctx.fillStyle = 'white';
-        this.ctx.fillRect(x*this.cell_width, y*this.cell_width, this.cell_width, this.cell_width);
+        this.ctx.fillRect(x*this.cell_size, y*this.cell_size, this.cell_size, this.cell_size);
         this.ctx.strokeStyle = 'grey';
-        this.ctx.strokeRect(x*this.cell_width, y*this.cell_width, this.cell_width, this.cell_width);
+        this.ctx.strokeRect(x*this.cell_size, y*this.cell_size, this.cell_size, this.cell_size);
     };
-    // todo parameters aren't required
-    SnakeGame.prototype.body_collision = function(x, y, array) {
+    // todo parameters aren't required - done
+    SnakeGame.prototype.body_collision = function() {
         var touched = false;
+        //var i = 0;
 
         // todo while (!touched && i < arr.length)
-        for (var i = 0; i < array.length; i++) {
-            if (array[i].x == x && array[i].y == y) {
+        //while (!touched && i < this.snake_array.length-1) {
+        //    i++;
+        //    if (this.snake_array[i].x == this.snake_array[this.snake_array.length - 1].x
+        //        && this.snake_array[i].y == this.snake_array[this.snake_array.length - 1].y) {
+        //        touched = true;
+        //        break;
+        //    }
+        //}
+        for (var i = 0; i < this.snake_array.length-1; i++) {
+            if (this.snake_array[i].x == this.snake_array[this.snake_array.length - 1].x
+                && this.snake_array[i].y == this.snake_array[this.snake_array.length - 1].y) {
                 touched = true;
                 break;
             }
@@ -169,37 +182,82 @@ $(document).ready(function(){
         return touched;
     };
 
+    SnakeGame.prototype.startStopGame = function () {
+        var self = this;
+        if(this.game_loop == null) {
+            this.game_loop = setInterval(function(){
+                self.paint_snake()
+            }, this.movingSpeed);
+        } else {
+            clearInterval(this.game_loop);
+            this.game_loop = null;
+        }
+    };
+
 
     var Snake = new SnakeGame();
     Snake.init_game();
 
-    $(document).on('keydown', function(e) {
-        var key = e.keyCode;
-        // todo map this
-        if (key == '37' && Snake.direction != 'right') {
-            Snake.direction = 'left';
-        } else if (key == '38' && Snake.direction != 'down') {
-            Snake.direction = 'up';
-        } else if (key == '39' && Snake.direction != 'left') {
-            Snake.direction = 'right';
-        } else if (key == '40' && Snake.direction != 'up') {
-            Snake.direction = 'down';
+    var keyMap = {
+        RIGHT : '39',
+        LEFT : '37',
+        UP : '38',
+        DOWN : '40'
+    };
+
+
+    // up, right, down, left
+    //var code = 39;
+    //var t = [38, 39, 40, 37];
+    //var index = t.indexOf(code);
+    //if (index >= 0) {
+    //    var opposite = t[(index+2)%4];
+    //    if (Snake.direction != opposite){
+    //        Snake.direction = index // direction by index
+    //    }
+    //}
+    //
+    var map = {
+        37 : function(){
+            Snake.direction == direction.RIGHT ? Snake.direction = direction.RIGHT : Snake.direction = direction.LEFT;
+        },
+        38 : function(){
+            Snake.direction == direction.DOWN ? Snake.direction = direction.DOWN : Snake.direction = direction.UP;
+        },
+        39 : function(){
+            Snake.direction == direction.LEFT ? Snake.direction = direction.LEFT : Snake.direction = direction.RIGHT;
+        },
+        40 : function(){
+            Snake.direction == direction.UP ? Snake.direction = direction.UP : Snake.direction = direction.DOWN;
+        },
+        80 : function(){
+            Snake.startStopGame();
         }
+    };
+
+
+    $(document).on('keydown', function(e) {
+        var code = parseInt(e.keyCode);
+        // todo map this - done
+        if (typeof map[code] == 'function') {
+            map[code]();
+        }
+
+        //if (key == keyMap.LEFT && Snake.direction != direction.RIGHT) {
+        //    Snake.direction = direction.LEFT;
+        //} else if (key == keyMap.UP && Snake.direction != direction.DOWN) {
+        //    Snake.direction = direction.UP;
+        //} else if (key == keyMap.RIGHT && Snake.direction != direction.LEFT) {
+        //    Snake.direction = direction.RIGHT;
+        //} else if (key == keyMap.DOWN && Snake.direction != direction.UP) {
+        //    Snake.direction = direction.DOWN;
+        //}
     });
 
 
     $('#pause').on('click', function() {
-        // todo start\stop belongs to snake
-
-        if(Snake.game_loop == null) {
-            Snake.game_loop = setInterval(function(){
-                Snake.paint_snake()
-            }, Snake.movingSpeed);
-        } else {
-            clearInterval(Snake.game_loop);
-            Snake.game_loop = null;
-        }
-
+        // todo start\stop belongs to snake - done
+        Snake.startStopGame();
     });
 
 
