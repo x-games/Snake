@@ -2,10 +2,10 @@ $(document).ready(function(){
 
     // todo don't use strings if it's not neccessary
     var direction = {
-        RIGHT : 0,
-        LEFT : 1,
-        UP : 2,
-        DOWN : 3
+        UP : 0,
+        RIGHT : 1,
+        DOWN : 2,
+        LEFT : 3
     };
 
     function SnakeGame() {
@@ -71,25 +71,26 @@ $(document).ready(function(){
         var new_x = this.snake_array[this.snake_array.length-1].x;
         var new_y = this.snake_array[this.snake_array.length-1].y;
 
-        var map = [
-            {
-                x : 1,
-                y : 0
-            },
-            {
-                x : -1,
-                y : 0
-            },
-            {
+        var map = [];
+        map[direction.UP] = {
                 x : 0,
                 y : -1
-            },
-            {
+            };
+
+        map[direction.RIGHT] = {
+                x : 1,
+                y : 0
+            };
+        map[direction.DOWN] = {
                 x : 0,
                 y : 1
-            }
+            };
 
-        ];
+        map[direction.LEFT]= {
+                x : -1,
+                y : 0
+            };
+
 
         var currentMove = map[this.direction];
         new_x += currentMove.x;
@@ -208,7 +209,7 @@ $(document).ready(function(){
 
     // up, right, down, left
     //var code = 39;
-    //var t = [38, 39, 40, 37];
+    var t = [38, 39, 40, 37];
     //var index = t.indexOf(code);
     //if (index >= 0) {
     //    var opposite = t[(index+2)%4];
@@ -218,18 +219,18 @@ $(document).ready(function(){
     //}
     //
     var map = {
-        37 : function(){
-            Snake.direction == direction.RIGHT ? Snake.direction = direction.RIGHT : Snake.direction = direction.LEFT;
-        },
-        38 : function(){
-            Snake.direction == direction.DOWN ? Snake.direction = direction.DOWN : Snake.direction = direction.UP;
-        },
-        39 : function(){
-            Snake.direction == direction.LEFT ? Snake.direction = direction.LEFT : Snake.direction = direction.RIGHT;
-        },
-        40 : function(){
-            Snake.direction == direction.UP ? Snake.direction = direction.UP : Snake.direction = direction.DOWN;
-        },
+        //37 : function(){
+        //    Snake.direction == direction.RIGHT ? Snake.direction = direction.RIGHT : Snake.direction = direction.LEFT;
+        //},
+        //38 : function(){
+        //    Snake.direction == direction.DOWN ? Snake.direction = direction.DOWN : Snake.direction = direction.UP;
+        //},
+        //39 : function(){
+        //    Snake.direction == direction.LEFT ? Snake.direction = direction.LEFT : Snake.direction = direction.RIGHT;
+        //},
+        //40 : function(){
+        //    Snake.direction == direction.UP ? Snake.direction = direction.UP : Snake.direction = direction.DOWN;
+        //},
         80 : function(){
             Snake.startStopGame();
         }
@@ -239,6 +240,18 @@ $(document).ready(function(){
     $(document).on('keydown', function(e) {
         var code = parseInt(e.keyCode);
         // todo map this - done
+
+        var newDir = t.indexOf(code),
+            diff = Math.abs(newDir - Snake.direction);
+
+        console.log(newDir, 0 == diff % 2);
+
+        if ((diff % 2) != 0) {
+            Snake.direction = newDir;
+            console.log(Snake.direction);
+        }
+
+
         if (typeof map[code] == 'function') {
             map[code]();
         }
