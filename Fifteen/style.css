@@ -1,7 +1,12 @@
+* {
+    box-sizing: border-box;
+}
+
 div {
     margin-top: 20px;
     width: 456px;
     border: solid 1px transparent;
+    /*transition: .3s;*/
 }
 
 div > div {
@@ -14,6 +19,7 @@ div > div {
     font: bold 24px/100px Tahoma,sans;
     border-radius: 10px;
     background-color: whitesmoke;
+    position: absolute;
 }
 
 .empty {
