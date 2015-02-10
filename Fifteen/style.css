@@ -6,7 +6,6 @@ div {
     margin-top: 20px;
     width: 456px;
     border: solid 1px transparent;
-    /*transition: .3s;*/
 }
 
 div > div {
@@ -20,6 +19,7 @@ div > div {
     border-radius: 10px;
     background-color: whitesmoke;
     position: absolute;
+    /*transition: .3s;*/
 }
 
 .empty {

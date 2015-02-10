@@ -1,23 +1,24 @@
 function FifteenGame() {
-    this.elements = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].sort(function () {
-        return Math.random() - .5;
-    }).concat(0);
+    this.elements = [];
+    this.nodesArr = [];
 
     this.fieldSize = 16;
     this.sideSize = Math.sqrt(this.fieldSize);
 
     this.move = {
-        up: -4,
+        up: 0 - this.sideSize,
         left: -1,
-        down: 4,
+        down: this.sideSize,
         right: 1
     };
-    this.empty = 15;
+    this.empty = this.fieldSize - 1;
 
     this.holder = document.body.appendChild(document.createElement('div'));
 }
 
 FifteenGame.prototype.init_game = function() {
+
+    this.fillElements();
 
     if (!this.solvable()) {
         this.swap(0, 1);
@@ -26,11 +27,15 @@ FifteenGame.prototype.init_game = function() {
     for (var i = 0; i < this.fieldSize; i++) {
         this.holder.appendChild(document.createElement('div'));
     }
+
+    this.nodesArr = this.holder.childNodes;
+
     var self = this;
     $('body').on('keydown', function (e) {
-        if (self.go(gameF.move[{39: 'left', 37: 'right', 40: 'up', 38: 'down'}[e.keyCode]])) {
+        if (self.go(self.move[{39: 'left', 37: 'right', 40: 'up', 38: 'down'}[e.keyCode]])) {
             if (self.isCompleted()) {
                 self.holder.style.backgroundColor = "gold";
+                $('body').off('keydown');
             }
         }
     });
@@ -39,15 +44,23 @@ FifteenGame.prototype.init_game = function() {
     this.draw();
 };
 
+FifteenGame.prototype.draw = function() {
+    for (var i = 0; i < this.fieldSize; i++) {
+        this.holder.childNodes[i].style.top = this.chips[i].y + 'px';
+        this.holder.childNodes[i].style.left = this.chips[i].x + 'px';
+        this.holder.childNodes[i].textContent = this.elements[i];
+        this.holder.childNodes[i].style.visibility = this.elements[i] ? 'visible' : 'hidden';
+    }
+};
+
 FifteenGame.prototype.coordinateAbsolute = function() {
-    var fieldPxSize = 400, //px
-        chipPxSize = fieldPxSize / 4;
+    var chipPxSize = 100; //px
     this.chips = [];
 
-    for (var i = 0; i < 16; i++) {
+    for (var i = 0; i < this.fieldSize; i++) {
         this.chips.push({
-            x : (i % 4) * chipPxSize,
-            y : Math.floor(i / 4) * chipPxSize
+            x : (i % this.sideSize) * chipPxSize,
+            y : Math.floor(i / this.sideSize) * chipPxSize
         })
     }
 };
@@ -90,13 +103,14 @@ FifteenGame.prototype.solvable = function() {
     return !(kDisorder % 2);
 };
 
-FifteenGame.prototype.draw= function() {
-    for (var i = 0; i < this.fieldSize; i++) {
-        this.holder.childNodes[i].style.top = this.chips[i].y + 'px';
-        this.holder.childNodes[i].style.left = this.chips[i].x + 'px';
-        this.holder.childNodes[i].textContent = this.elements[i];
-        this.holder.childNodes[i].style.visibility = this.elements[i] ? 'visible' : 'hidden';
+FifteenGame.prototype.fillElements = function() {
+    for(var i = 1; i < this.fieldSize; i++) {
+        this.elements.push(i);
     }
+    this.elements.sort(function () {
+        return Math.random() - .5;
+    });
+    this.elements.push(0);
 };
 
 var gameF = new FifteenGame();
