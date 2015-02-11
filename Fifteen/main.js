@@ -71,28 +71,31 @@ FifteenGame.prototype.moveClick = function(clickIndex) {
 };
 
 FifteenGame.prototype.swapElements = function(element1, element2) {
-    var clonedElement1 = this.holder.childNodes[element1].cloneNode(true);
-    var clonedElement2 = this.holder.childNodes[element2].cloneNode(true);
+    this.swap(element1, element2);
+
+    if(element1+1 == element2) {
+        this.holder.childNodes[element1].style.left = parseInt(this.holder.childNodes[element1].style.left) + 100 + 'px';
+        this.holder.childNodes[element2].style.left = parseInt(this.holder.childNodes[element2].style.left) - 100 + 'px';
+    } else if(element1-1 == element2) {
+        this.holder.childNodes[element1].style.left = parseInt(this.holder.childNodes[element1].style.left) - 100 + 'px';
+        this.holder.childNodes[element2].style.left = parseInt(this.holder.childNodes[element2].style.left) + 100 + 'px';
+    } else if(element1+4 == element2) {
+        this.holder.childNodes[element1].style.top = parseInt(this.holder.childNodes[element1].style.top) + 100 + 'px';
+        this.holder.childNodes[element2].style.top = parseInt(this.holder.childNodes[element2].style.top) - 100 + 'px';
+    } else if(element1-4 == element2) {
+        this.holder.childNodes[element1].style.top = parseInt(this.holder.childNodes[element1].style.top) - 100 + 'px';
+        this.holder.childNodes[element2].style.top = parseInt(this.holder.childNodes[element2].style.top) + 100 + 'px';
+    }
+
+    var self = this;
+    setTimeout(function(){
+        var clonedElement1 = self.holder.childNodes[element1].cloneNode(true);
+        var clonedElement2 = self.holder.childNodes[element2].cloneNode(true);
 
 
-    this.holder.childNodes[element2].parentNode.replaceChild(clonedElement1, this.holder.childNodes[element2]);
-    this.holder.childNodes[element1].parentNode.replaceChild(clonedElement2, this.holder.childNodes[element1]);
-
-    //var b = this.chips[element1];
-    //this.chips[element1] = this.chips[element2];
-    //this.chips[element2] = b;
-
-    //if(element1+1 == element2) {
-    //    gameF.holder.childNodes[element1].style.left = parseInt(gameF.holder.childNodes[7].style. left) + 200 + 'px';
-    //}
-
-
-    this.holder.childNodes[element1].style.top = this.chips[element1].y + 'px';
-    this.holder.childNodes[element1].style.left = this.chips[element1].x + 'px';
-
-    this.holder.childNodes[element2].style.top = this.chips[element2].y + 'px';
-    this.holder.childNodes[element2].style.left = this.chips[element2].x + 'px';
-
+        self.holder.childNodes[element2].parentNode.replaceChild(clonedElement1, self.holder.childNodes[element2]);
+        self.holder.childNodes[element1].parentNode.replaceChild(clonedElement2, self.holder.childNodes[element1]);
+    }, 100);
 };
 
 FifteenGame.prototype.draw = function() {
