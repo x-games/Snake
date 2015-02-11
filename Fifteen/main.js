@@ -40,8 +40,59 @@ FifteenGame.prototype.init_game = function() {
         }
     });
 
+    $('body').on('click', 'div > div', function() {
+        self.moveClick($(this).index());
+    });
+
     this.coordinateAbsolute();
     this.draw();
+};
+
+FifteenGame.prototype.fillElements = function() {
+    for(var i = 1; i < this.fieldSize; i++) {
+        this.elements.push(i);
+    }
+    this.elements.sort(function () {
+        return Math.random() - .5;
+    });
+    this.elements.push(0);
+};
+
+FifteenGame.prototype.moveClick = function(clickIndex) {
+    console.log(clickIndex);
+
+    if(clickIndex+1 == this.empty
+        || clickIndex-1 == this.empty
+        || clickIndex+4 == this.empty
+        || clickIndex-4 == this.empty) {
+        this.swapElements(clickIndex, this.empty);
+        this.empty = clickIndex;
+    }
+};
+
+FifteenGame.prototype.swapElements = function(element1, element2) {
+    var clonedElement1 = this.holder.childNodes[element1].cloneNode(true);
+    var clonedElement2 = this.holder.childNodes[element2].cloneNode(true);
+
+
+    this.holder.childNodes[element2].parentNode.replaceChild(clonedElement1, this.holder.childNodes[element2]);
+    this.holder.childNodes[element1].parentNode.replaceChild(clonedElement2, this.holder.childNodes[element1]);
+
+    //var b = this.chips[element1];
+    //this.chips[element1] = this.chips[element2];
+    //this.chips[element2] = b;
+
+    //if(element1+1 == element2) {
+    //    gameF.holder.childNodes[element1].style.left = parseInt(gameF.holder.childNodes[7].style. left) + 200 + 'px';
+    //}
+
+
+    this.holder.childNodes[element1].style.top = this.chips[element1].y + 'px';
+    this.holder.childNodes[element1].style.left = this.chips[element1].x + 'px';
+
+    this.holder.childNodes[element2].style.top = this.chips[element2].y + 'px';
+    this.holder.childNodes[element2].style.left = this.chips[element2].x + 'px';
+
 };
 
 FifteenGame.prototype.draw = function() {
@@ -91,6 +142,12 @@ FifteenGame.prototype.swap = function(i1, i2) {
     var t = this.elements[i1];
     this.elements[i1] = this.elements[i2];
     this.elements[i2] = t;
+
+    //var tt = this.chips[i1];
+    //console.log(this.chips[i1]);
+    //this.chips[i1] = this.chips[i2];
+    //this.chips[i2] = tt;
+    // todo move chip to empty cell's position
 };
 
 FifteenGame.prototype.solvable = function() {
@@ -101,16 +158,6 @@ FifteenGame.prototype.solvable = function() {
             }
         }
     return !(kDisorder % 2);
-};
-
-FifteenGame.prototype.fillElements = function() {
-    for(var i = 1; i < this.fieldSize; i++) {
-        this.elements.push(i);
-    }
-    this.elements.sort(function () {
-        return Math.random() - .5;
-    });
-    this.elements.push(0);
 };
 
 var gameF = new FifteenGame();
