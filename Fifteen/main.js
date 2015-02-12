@@ -2,7 +2,7 @@ function FifteenGame() {
     this.elements = [];
     this.nodesArr = [];
 
-    this.fieldSize = 16;
+    this.fieldSize = 25;
     this.sideSize = Math.sqrt(this.fieldSize);
 
     this.move = {
@@ -31,17 +31,22 @@ FifteenGame.prototype.init_game = function() {
     this.nodesArr = this.holder.childNodes;
 
     var self = this;
-    $('body').on('keydown', function (e) {
-        if (self.go(self.move[{39: 'left', 37: 'right', 40: 'up', 38: 'down'}[e.keyCode]])) {
-            if (self.isCompleted()) {
-                self.holder.style.backgroundColor = "gold";
-                $('body').off('keydown');
-            }
-        }
-    });
+    //$('body').on('keydown', function (e) {
+    //    if (self.go(self.move[{39: 'left', 37: 'right', 40: 'up', 38: 'down'}[e.keyCode]])) {
+    //        if (self.isCompleted()) {
+    //            self.holder.style.backgroundColor = "gold";
+    //            $('body').off('keydown');
+    //        }
+    //    }
+    //});
 
     $('body').on('click', 'div > div', function() {
-        self.moveClick($(this).index());
+        if(self.isCompleted()) {
+            self.holder.style.backgroundColor = "gold";
+            $('body').off('keydown');
+        } else {
+            self.moveClick($(this).index());
+        }
     });
 
     this.coordinateAbsolute();
@@ -59,12 +64,11 @@ FifteenGame.prototype.fillElements = function() {
 };
 
 FifteenGame.prototype.moveClick = function(clickIndex) {
-    console.log(clickIndex);
 
     if(clickIndex+1 == this.empty
         || clickIndex-1 == this.empty
-        || clickIndex+4 == this.empty
-        || clickIndex-4 == this.empty) {
+        || clickIndex+this.sideSize == this.empty
+        || clickIndex-this.sideSize == this.empty) {
         this.swapElements(clickIndex, this.empty);
         this.empty = clickIndex;
     }
@@ -79,10 +83,10 @@ FifteenGame.prototype.swapElements = function(element1, element2) {
     } else if(element1-1 == element2) {
         this.holder.childNodes[element1].style.left = parseInt(this.holder.childNodes[element1].style.left) - 100 + 'px';
         this.holder.childNodes[element2].style.left = parseInt(this.holder.childNodes[element2].style.left) + 100 + 'px';
-    } else if(element1+4 == element2) {
+    } else if(element1+this.sideSize == element2) {
         this.holder.childNodes[element1].style.top = parseInt(this.holder.childNodes[element1].style.top) + 100 + 'px';
         this.holder.childNodes[element2].style.top = parseInt(this.holder.childNodes[element2].style.top) - 100 + 'px';
-    } else if(element1-4 == element2) {
+    } else if(element1-this.sideSize == element2) {
         this.holder.childNodes[element1].style.top = parseInt(this.holder.childNodes[element1].style.top) - 100 + 'px';
         this.holder.childNodes[element2].style.top = parseInt(this.holder.childNodes[element2].style.top) + 100 + 'px';
     }
