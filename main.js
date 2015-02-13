@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-    // todo don't use strings if it's not neccessary
+    // todo don't use strings if it's not necessary
     var direction = {
         UP : 0,
         RIGHT : 1,

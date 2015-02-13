@@ -25,3 +25,8 @@ div > div {
 .empty {
     opacity: 0;
 }
+
+#canvas {
+    position: relative;
+    left: 500px;
+}
