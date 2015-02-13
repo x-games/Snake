@@ -1,25 +1,37 @@
-function FifteenGame() {
-    this.activeAnimation = {
-        element : null,
-        duration : 200,
-        startPosition : {
-            x : 0,
-            y : 0
-        },
-        endPosition : {
-            x : 0,
-            y : 0
-        },
-        time : 0,
-        isActive : false
-    };
-    this.x = 0;
-    this.speed = 5;
-    this.canvas = document.getElementById('canvas');
-    this.ctx = this.canvas.getContext('2d');
-    this.w = this.canvas.width;
-    this.h = this.canvas.height;
+function Game (){
+    this.drawer = new CanvasDrawer();
+    //this.drawer = new HTMLDrawer();
 
+}
+
+Game.prototype.draw = function(){
+    this.drawer.draw();
+};
+
+
+function CanvasDrawer (){
+
+}
+
+CanvasDrawer.prototype.draw = function(){
+
+};
+
+function HTMLDrawer (){
+
+}
+
+HTMLDrawer.prototype.draw = function(){
+
+};
+
+
+
+
+
+
+
+function FifteenGame() {
 
     this.elements = [];
 
@@ -34,21 +46,71 @@ function FifteenGame() {
         right: 1
     };
     this.empty = this.fieldSize - 1;
-
-    this.holder = document.body.appendChild(document.createElement('div'));
 }
 
 FifteenGame.prototype.init_game = function() {
+
+    this.fillElements();
+
+    if (!this.solvable()) {
+        this.swap(0, 1);
+    }
+
+    this.coordinateAbsolute();
+
+
+    //this.renderHtml();
+    this.renderCanvas();
+};
+
+FifteenGame.prototype.renderHtml = function() {
     var self = this;
 
-    window.requestAnimFrame = (function(){
-        return  window.requestAnimationFrame       ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame    ||
-            function( callback ){
-                window.setTimeout(callback, 1000 / 60);
-            };
-    })();
+    this.holder = document.body.appendChild(document.createElement('div'));
+
+    for (var i = 0; i < this.fieldSize; i++) {
+        this.holder.appendChild(document.createElement('div'));
+    }
+
+    $('body').on('click', 'div > div', function() {
+        if(self.isCompleted()) {
+            self.holder.style.backgroundColor = "gold";
+            $('body').off('keydown');
+        } else {
+            self.moveClick($(this).index());
+        }
+    });
+
+    for (var i = 0; i < this.fieldSize; i++) {
+        this.holder.childNodes[i].style.top = this.chips[i].y + 'px';
+        this.holder.childNodes[i].style.left = this.chips[i].x + 'px';
+        this.holder.childNodes[i].textContent = this.elements[i];
+        this.holder.childNodes[i].style.visibility = this.elements[i] ? 'visible' : 'hidden';
+    }
+};
+
+FifteenGame.prototype.renderCanvas = function() {
+    this.activeAnimation = {
+        element : null,
+        duration : 200,
+        startPosition : {
+            x : 0,
+            y : 0
+        },
+        endPosition : {
+            x : 0,
+            y : 0
+        },
+        time : 0,
+        isActive : false
+    };
+    this.speed = 5;
+    this.canvas = document.getElementById('canvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.w = this.canvas.width;
+    this.h = this.canvas.height;
+
+    var self = this;
 
     var cb = function(){
         if(!self.activeAnimation.isActive) {
@@ -82,9 +144,9 @@ FifteenGame.prototype.init_game = function() {
 
     $('#canvas').on('click', function(e) {
         var mousePos = self.getMousePos(gameF.canvas, e);
-        var message = parseInt(mousePos.x/100) + ',' + parseInt(mousePos.y/100);
-        var x = parseInt(mousePos.x/100)*100;
-        var y = parseInt(mousePos.y/100)*100;
+        var message = parseInt(mousePos.x/self.cell_size) + ',' + parseInt(mousePos.y/self.cell_size);
+        var x = parseInt(mousePos.x/self.cell_size)*self.cell_size;
+        var y = parseInt(mousePos.y/self.cell_size)*self.cell_size;
         console.log(message);
         if (self.isEmptyNear(self.canvasClickedElement(x, y))) {
             self.activeAnimation.isActive = true;
@@ -94,61 +156,8 @@ FifteenGame.prototype.init_game = function() {
         }
         cb();
     });
-
-    this.fillElements();
-
-    if (!this.solvable()) {
-        this.swap(0, 1);
-    }
-
-    /* uncomment for html*/
-    //for (var i = 0; i < this.fieldSize; i++) {
-    //    this.holder.appendChild(document.createElement('div'));
-    //}
-    /**/
-
-    this.nodesArr = this.holder.childNodes;
-
-
-    $('body').on('click', 'div > div', function() {
-        if(self.isCompleted()) {
-            self.holder.style.backgroundColor = "gold";
-            $('body').off('keydown');
-        } else {
-            self.moveClick($(this).index());
-        }
-    });
-
-    this.coordinateAbsolute();
-    //this.draw();
-
     this.paintGameField();
-
-
-
-
-
-    cb();
-
     this.paintGameCells();
-};
-
-FifteenGame.prototype.animateCell = function() {
-
-    this.reqAnimFrame = window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame;
-
-    this.reqAnimFrame(this.animateCell);
-
-    this.x += speed;
-
-    if(this.x = this.chips[this.empty].x) {
-        return;
-    }
-
-    this.paintGameCells();
-
 };
 
 FifteenGame.prototype.paintGameField = function() {
@@ -156,8 +165,6 @@ FifteenGame.prototype.paintGameField = function() {
     this.ctx.fillRect(0, 0, this.w, this.h);
     this.ctx.strokeStyle = 'black';
     this.ctx.strokeRect(0, 0, this.w, this.h);
-
-    //this.paintGameCells();
 };
 
 FifteenGame.prototype.paintGameCells = function() {
@@ -170,21 +177,13 @@ FifteenGame.prototype.paintGameCells = function() {
         if(cell_text) {
             this.ctx.fillStyle = 'white';
             this.ctx.fillRect(this.chips[i].x, this.chips[i].y, 100, 100);
-            //this.ctx.fillRect((i%4)*this.cell_size, Math.floor(i / this.sideSize) * this.cell_size, 100, 100);
             this.ctx.strokeStyle = 'grey';
             this.ctx.strokeRect(this.chips[i].x, this.chips[i].y, 100, 100);
-            //this.ctx.strokeRect((i%4)*this.cell_size, Math.floor(i / this.sideSize) * this.cell_size, 100, 100);
             this.ctx.fillStyle = 'black';
             this.ctx.fillText(cell_text,
                 this.chips[i].x + this.cell_size/2,
-                //(i%4)*this.cell_size + this.cell_size/2,
                 this.chips[i].y + this.cell_size/2);
-            //Math.floor(i / this.sideSize) * this.cell_size + this.cell_size/2);
         } else {
-            //this.ctx.fillStyle = 'white';
-            //this.ctx.fillRect(this.chips[i].x, this.chips[i].y, 100, 100);
-            //this.ctx.strokeStyle = 'grey';
-            //this.ctx.strokeRect(this.chips[i].x, this.chips[i].y, 100, 100);
             cell_text = '';
             this.ctx.fillText(cell_text,
                 this.chips[i].x + this.cell_size/2,
@@ -203,14 +202,10 @@ FifteenGame.prototype.canvasClickedElement = function(x, y) {
 };
 
 FifteenGame.prototype.isEmptyNear = function(clickIndex) {
-
     return(clickIndex+1 == this.empty
         || clickIndex-1 == this.empty
         || clickIndex+this.sideSize == this.empty
         || clickIndex-this.sideSize == this.empty);
-
-
-    //this.paintGameCells();
 };
 
 FifteenGame.prototype.getMousePos = function(canvas, evt) {
@@ -232,7 +227,6 @@ FifteenGame.prototype.fillElements = function() {
 };
 
 FifteenGame.prototype.moveClick = function(clickIndex) {
-
     if(clickIndex+1 == this.empty
         || clickIndex-1 == this.empty
         || clickIndex+this.sideSize == this.empty
@@ -240,7 +234,6 @@ FifteenGame.prototype.moveClick = function(clickIndex) {
         this.swapElements(clickIndex, this.empty);
         this.empty = clickIndex;
     }
-    this.paintGameField();
 };
 
 FifteenGame.prototype.swapElements = function(elem1, elem2) {
@@ -270,15 +263,6 @@ FifteenGame.prototype.swapElements = function(elem1, elem2) {
     }, 100);
 };
 
-FifteenGame.prototype.draw = function() {
-    for (var i = 0; i < this.fieldSize; i++) {
-        this.holder.childNodes[i].style.top = this.chips[i].y + 'px';
-        this.holder.childNodes[i].style.left = this.chips[i].x + 'px';
-        this.holder.childNodes[i].textContent = this.elements[i];
-        this.holder.childNodes[i].style.visibility = this.elements[i] ? 'visible' : 'hidden';
-    }
-};
-
 FifteenGame.prototype.coordinateAbsolute = function() {
     var chipPxSize = this.cell_size; //px
     this.chips = [];
@@ -297,34 +281,10 @@ FifteenGame.prototype.isCompleted = function() {
     });
 };
 
-FifteenGame.prototype.go = function(move) {
-    var index = this.empty + move;
-    if (!this.elements[index]) {
-        return false;
-    }
-    if (move == this.move.left || move == this.move.right) {
-        if (Math.floor(this.empty / this.sideSize) !== Math.floor(index / this.sideSize)) {
-            return false;
-        }
-    }
-    this.swap(index, this.empty);
-    this.empty = index;
-
-    this.draw();
-};
-
 FifteenGame.prototype.swap = function(i1, i2) {
     var t = this.elements[i1];
     this.elements[i1] = this.elements[i2];
     this.elements[i2] = t;
-
-
-
-    //var tt = this.chips[i1];
-    //console.log(this.chips[i1]);
-    //this.chips[i1] = this.chips[i2];
-    //this.chips[i2] = tt;
-    // todo move chip to empty cell's position
 };
 
 FifteenGame.prototype.solvable = function() {
@@ -339,8 +299,3 @@ return !(kDisorder % 2);
 
 var gameF = new FifteenGame();
 gameF.init_game();
-
-//(function animloop(){
-//    requestAnimFrame(animloop);
-//    gameF.paintGameCells();
-//})();
