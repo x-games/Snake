@@ -1,16 +1,32 @@
 function Game (){
-    this.drawer = new CanvasDrawer();
+
+    var self = this;
+
+    var callback = function(x,y){
+        self.click(x,y);
+    };
+
+    this.drawer = new CanvasDrawer(callback);
     //this.drawer = new HTMLDrawer();
 
 }
+
+Game.prototype.click = function(x,y){
+    // work with coords
+};
 
 Game.prototype.draw = function(){
     this.drawer.draw();
 };
 
 
-function CanvasDrawer (){
-
+function CanvasDrawer (callback){
+    this.callback = callback;
+    canvas.addEventListener('click', function(){
+        var x = 0,
+            y = 0;
+        callback(x,y);
+    })
 }
 
 CanvasDrawer.prototype.draw = function(){
@@ -289,12 +305,12 @@ FifteenGame.prototype.swap = function(i1, i2) {
 
 FifteenGame.prototype.solvable = function() {
     for (var kDisorder = 0, i = 1; i < this.elements.length - 1; i++)
-for (var j = i - 1; j >= 0; j--) {
-    if (this.elements[j] > this.elements[i]) {
-        kDisorder++;
+    for (var j = i - 1; j >= 0; j--) {
+        if (this.elements[j] > this.elements[i]) {
+            kDisorder++;
+        }
     }
-}
-return !(kDisorder % 2);
+    return !(kDisorder % 2);
 };
 
 var gameF = new FifteenGame();
